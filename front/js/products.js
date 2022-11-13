@@ -14,7 +14,7 @@ const selectQuantity = document.querySelector('#quantity');
 const addToCart = document.querySelector('#addToCart');
 
 //function 1
-const selectedProduct = (product) => {
+const selectProduct = (product) => {
   // Integrate product data to the page HTML
   document.querySelector('head > title').textContent = product.name;
   document.querySelector(
@@ -37,41 +37,43 @@ const selectedProduct = (product) => {
 const registerProduct = (product) => {
   addToCart.addEventListener('click', (event) => {
     event.preventDefault();
-    const cartData = JSON.parse(localStorage.getItem('cart'));
-    const selectedProducts = {
-      id: product._id,
-      name: product.name,
-      img: product.imageUrl,
-      altTxt: product.altTxt,
-      description: product.description,
-      color: selectColor.value,
-      quantity: parseInt(selectQuantity.value, 10)
-    };
 
-    console.log(selectedProducts);
+    if (selectColor.value == false) {
+      confirm('Veuillez sélectionner une couleur');
+    } else if (selectQuantity.value == 0) {
+      confirm("Nombre d'articles insuffisants");
+    } else {
+      const cartData = JSON.parse(localStorage.getItem('cart'));
+      const selectedProducts = {
+        id: product._id,
+        name: product.name,
+        img: product.imageUrl,
+        altTxt: product.altTxt,
+        description: product.description,
+        color: selectColor.value,
+        quantity: parseInt(selectQuantity.value, 10)
+      };
 
-    if (cartData) {
-      console.log('Il y a déjà un produit dans le panier');
-      let itemArray = cartData.find(
-        (item) =>
-          item.id == selectedProducts.id && item.color == selectedProducts.color
-      );
-      if (itemArray) {
-        itemArray.quantity = itemArray.quantity + selectedProducts.quantity;
-        itemArray.totalPrice += itemArray.price * selectedProducts.quantity;
+      if (cartData) {
+        let itemArray = cartData.find(
+          (item) =>
+            item.id == selectedProducts.id &&
+            item.color == selectedProducts.color
+        );
+        if (itemArray) {
+          itemArray.quantity = itemArray.quantity + selectedProducts.quantity;
+          itemArray.totalPrice += itemArray.price * selectedProducts.quantity;
+          localStorage.setItem('cart', JSON.stringify(cartData));
+        }
+        cartData.push(selectedProducts);
         localStorage.setItem('cart', JSON.stringify(cartData));
-        console.log('Quantité supplémentaire dans le panier.');
-        return;
+      } else {
+        let createLocalStorage = [];
+        createLocalStorage.push(selectedProducts);
+        localStorage.setItem('cart', JSON.stringify(createLocalStorage));
       }
 
-      cartData.push(selectedProducts);
-      localStorage.setItem('cart', JSON.stringify(cartData));
-      console.log('Le produit a été ajouté au panier');
-    } else {
-      let createLocalStorage = [];
-      createLocalStorage.push(selectedProducts);
-      localStorage.setItem('cart', JSON.stringify(createLocalStorage));
-      console.log('Le panier est vide, on ajoute le premier produit');
+      alert('Votre article est ajouté au panier');
     }
   });
 };
@@ -81,7 +83,8 @@ fetch(`http://localhost:3000/api/products/${productId}`)
     return res.json();
   })
   .then((product) => {
-    selectedProduct(product);
+    selectProduct(product);
+    registerProduct(product);
   })
   .catch((e) => {
     console.log(console.log('There is this following ERROR: ' + e));
