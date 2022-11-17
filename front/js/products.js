@@ -38,9 +38,9 @@ const registerProduct = (product) => {
   addToCart.addEventListener('click', (event) => {
     event.preventDefault();
 
-    if (selectColor.value == false) {
+    if (selectColor.value === false) {
       confirm('Veuillez sélectionner une couleur');
-    } else if (selectQuantity.value == 0) {
+    } else if (selectQuantity.value === 0) {
       confirm("Nombre d'articles insuffisants");
     } else {
       const cartData = JSON.parse(localStorage.getItem('cart'));
@@ -72,6 +72,8 @@ const registerProduct = (product) => {
         createLocalStorage.push(selectedProducts);
         localStorage.setItem('cart', JSON.stringify(createLocalStorage));
       }
+
+      console.log(cartData);
 
       alert('Votre article est ajouté au panier');
     }
