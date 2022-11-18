@@ -5,7 +5,7 @@ const orderId = getProductId();
 
 const idConfirmation = document.querySelector('#orderId');
 
-const btnRetourHtml = `<button id="retourAccueil"><a href="./index.html">Retour à l'accueil</a></button>`;
+const btnReturnHtml = `<button id="retourAccueil"><a href="./index.html">Retour à l'accueil</a></button>`;
 
 const clearData = () => {
   idConfirmation.innerHTML = `
@@ -14,7 +14,7 @@ const clearData = () => {
   <br>
   `;
 
-  idConfirmation.insertAdjacentHTML('beforeend', btnRetourHtml);
+  idConfirmation.insertAdjacentHTML('beforeend', btnReturnHtml);
 
   localStorage.clear();
 };

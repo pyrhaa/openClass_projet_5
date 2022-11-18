@@ -3,10 +3,8 @@ const getProductId = () => {
   return new URL(location.href).searchParams.get('id');
 };
 const productId = getProductId();
-
 // select id color
 const selectColor = document.querySelector('#colors');
-
 // select id quantity
 const selectQuantity = document.querySelector('#quantity');
 
@@ -38,9 +36,9 @@ const registerProduct = (product) => {
   addToCart.addEventListener('click', (event) => {
     event.preventDefault();
 
-    if (selectColor.value === false) {
+    if (selectColor.value === '') {
       confirm('Veuillez sélectionner une couleur');
-    } else if (selectQuantity.value === 0) {
+    } else if (selectQuantity.value === '0') {
       confirm("Nombre d'articles insuffisants");
     } else {
       const cartData = JSON.parse(localStorage.getItem('cart'));
@@ -60,21 +58,21 @@ const registerProduct = (product) => {
             item.id == selectedProducts.id &&
             item.color == selectedProducts.color
         );
-        if (itemArray) {
+        const sameItemColor = selectedProducts.color;
+
+        if (itemArray && sameItemColor === itemArray.color) {
           itemArray.quantity = itemArray.quantity + selectedProducts.quantity;
           itemArray.totalPrice += itemArray.price * selectedProducts.quantity;
           localStorage.setItem('cart', JSON.stringify(cartData));
+        } else {
+          cartData.push(selectedProducts);
+          localStorage.setItem('cart', JSON.stringify(cartData));
         }
-        cartData.push(selectedProducts);
-        localStorage.setItem('cart', JSON.stringify(cartData));
       } else {
         let createLocalStorage = [];
         createLocalStorage.push(selectedProducts);
         localStorage.setItem('cart', JSON.stringify(createLocalStorage));
       }
-
-      console.log(cartData);
-
       alert('Votre article est ajouté au panier');
     }
   });
@@ -89,5 +87,5 @@ fetch(`http://localhost:3000/api/products/${productId}`)
     registerProduct(product);
   })
   .catch((e) => {
-    console.log(console.log('There is this following ERROR: ' + e));
+    console.log('There is this following ERROR: ' + e);
   });

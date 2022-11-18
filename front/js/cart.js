@@ -4,8 +4,6 @@ let products = [];
 
 let orderId = '';
 
-console.log(cartData);
-
 const contact = {
   firstName: document.querySelector('#firstName').value,
   lastName: document.querySelector('#lastName').value,
@@ -30,16 +28,15 @@ const getProductById = (productId) => {
 
 const changeQuantity = () => {
   const quantityInputs = document.querySelectorAll('.itemQuantity');
+
   quantityInputs.forEach((quantityInput) => {
     quantityInput.addEventListener('change', (event) => {
       event.preventDefault();
       const inputValue = event.target.value;
       const dataId = event.target.getAttribute('data-id');
       const dataColor = event.target.getAttribute('data-color');
-      let cart = localStorage.getItem('cart');
-      let items = JSON.parse(cart);
-
-      items = items.map((item, index) => {
+      let items = cartData;
+      items = items.map((item) => {
         if (item.id === dataId && item.color === dataColor) {
           item.quantity = inputValue;
         }
@@ -61,13 +58,10 @@ const deleteItem = () => {
       event.preventDefault();
       const deleteId = event.target.getAttribute('data-id');
       const deleteColor = event.target.getAttribute('data-color');
-      cart = cart.filter(
+      cartData = cartData.filter(
         (element) => !(element.id == deleteId && element.color == deleteColor)
       );
-      console.log(cart);
-
-      localStorage.setItem('cart', JSON.stringify(cart));
-
+      localStorage.setItem('cart', JSON.stringify(cartData));
       location.reload();
       alert('Article supprimé du panier.');
     });
@@ -86,12 +80,10 @@ const displayCart = async () => {
     positionEmptyCart.textContent = 'Votre panier est vide';
   } else {
     console.log('Des produits sont présents dans le panier');
-  }
-
-  for (let i = 0; i < cartData.length; i++) {
-    const product = await getProductById(cartData[i].id);
-    const totalPriceItem = (product.price *= cartData[i].quantity);
-    cartArray += `<article class="cart__item" data-id="${cartData[i].id}" data-color="${cartData[i].color}">
+    for (i = 0; i < cartData.length; i++) {
+      const product = await getProductById(cartData[i].id);
+      const totalPriceItem = (product.price *= cartData[i].quantity);
+      cartArray += `<article class="cart__item" data-id="${cartData[i].id}" data-color="${cartData[i].color}">
                   <div class="cart__item__img">
                       <img src="${product.imageUrl}" alt="${product.altTxt}">
                   </div>
@@ -104,33 +96,36 @@ const displayCart = async () => {
                       <div class="cart__item__content__settings">
                         <div class="cart__item__content__settings__quantity">
                             <p id="quantité">
-                              Qté : <input data-id= ${cartData[i].id} data-color= ${cartData[i].color} type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value=${cartData[i].quantity}>
+                              Qté: <input data-id= ${cartData[i].id} data-color= ${cartData[i].color} type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value=${cartData[i].quantity}>
                             </p>
+                        </div>
+                        <div>
                             <p id="sousTotal">Prix total pour cet article: ${totalPriceItem}€</p>
                         </div>
                         <div class="cart__item__content__settings__delete">
-                          <p data-id= ${cartData[i].id} data-color= ${cartData[i].color} class="deleteItem">Supprimer</p>
+                          <button data-id= ${cartData[i].id} data-color= ${cartData[i].color} class="deleteItem">Supprimer</button>
                         </div>
                       </div>
                     </div>
                   </div>
                   </article>`;
-  }
+    }
 
-  for (let i = 0; i < cartData.length; i++) {
-    const article = await getProductById(cartData[i].id);
-    totalQuantity += parseInt(cartData[i].quantity);
-    totalPrice += parseInt(article.price * cartData[i].quantity);
-  }
+    for (i = 0; i < cartData.length; i++) {
+      const article = await getProductById(cartData[i].id);
+      totalQuantity += parseInt(cartData[i].quantity);
+      totalPrice += parseInt(article.price * cartData[i].quantity);
+    }
 
-  document.getElementById('totalQuantity').innerHTML = totalQuantity;
-  document.getElementById('totalPrice').innerHTML = totalPrice;
+    document.getElementById('totalQuantity').innerHTML = totalQuantity;
+    document.getElementById('totalPrice').innerHTML = totalPrice;
 
-  if (i === cartData.length) {
-    const displayBasket = parser.parseFromString(cartArray, 'text/html');
-    positionEmptyCart.appendChild(displayBasket.body);
-    changeQuantity();
-    deleteItem();
+    if (i === cartData.length) {
+      const displayBasket = parser.parseFromString(cartArray, 'text/html');
+      positionEmptyCart.appendChild(displayBasket.body);
+      changeQuantity();
+      deleteItem();
+    }
   }
 };
 
@@ -140,6 +135,28 @@ displayCart();
 
 // bouton valider
 const btnValidate = document.querySelector('#order');
+
+/* REQUÊTE DU SERVEUR ET POST DES DONNÉES */
+const sendToServer = () => {
+  fetch('http://localhost:3000/api/products/order', {
+    method: 'POST',
+    body: JSON.stringify({ contact, products }),
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  })
+    .then((res) => {
+      return res.json();
+    })
+    .then((server) => {
+      orderId = server.orderId;
+      console.log(orderId);
+    });
+
+  if (orderId != '') {
+    location.href = 'confirmation.html?id=' + orderId;
+  }
+};
 
 // validation par click
 btnValidate.addEventListener('click', (event) => {
@@ -265,10 +282,24 @@ btnValidate.addEventListener('click', (event) => {
 
     document.querySelector('#order').value =
       'Articles et formulaire validés ! Commande effectuée';
-    // sendToServer();
+    sendToServer();
   } else {
     alert('Veuillez remplir correctement le formulaire');
   }
-
-  /* FIN GESTION DU FORMULAIRE */
 });
+/* FIN GESTION DU FORMULAIRE */
+
+// Maintenir le contenu du localStorage dans le champs du formulaire
+
+let dataFormulaire = JSON.parse(localStorage.getItem('contact'));
+
+console.log('dataFormulaire: ', dataFormulaire);
+if (dataFormulaire) {
+  document.querySelector('#firstName').value = dataFormulaire.firstName;
+  document.querySelector('#lastName').value = dataFormulaire.lastName;
+  document.querySelector('#address').value = dataFormulaire.address;
+  document.querySelector('#city').value = dataFormulaire.city;
+  document.querySelector('#email').value = dataFormulaire.email;
+} else {
+  console.log('Le formulaire est vide');
+}
