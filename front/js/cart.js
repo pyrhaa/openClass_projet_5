@@ -1,7 +1,5 @@
-let cartData = JSON.parse(localStorage.getItem('cart'));
-
-let products = [];
-
+const cartData = JSON.parse(localStorage.getItem('cart'));
+const products = [];
 let orderId = '';
 
 const getProductById = (productId) => {
@@ -27,8 +25,7 @@ const changeQuantity = () => {
       const inputValue = event.target.value;
       const dataId = event.target.getAttribute('data-id');
       const dataColor = event.target.getAttribute('data-color');
-      let items = cartData;
-      items = items.map((item) => {
+      const items = cartData.map((item) => {
         if (item.id === dataId && item.color === dataColor) {
           item.quantity = inputValue;
         }
@@ -50,17 +47,17 @@ const deleteItem = () => {
       event.preventDefault();
       const deleteId = event.target.getAttribute('data-id');
       const deleteColor = event.target.getAttribute('data-color');
-      cartData = cartData.filter(
+      let items = cartData.filter(
         (element) => !(element.id == deleteId && element.color == deleteColor)
       );
-      localStorage.setItem('cart', JSON.stringify(cartData));
+      localStorage.setItem('cart', JSON.stringify(items));
       location.reload();
       alert('Article supprimé du panier.');
     });
   });
 };
 
-const displayCart = async () => {
+const displayCart = async (cartData) => {
   let cartArray = [];
   let totalQuantity = 0;
   let totalPrice = 0;
@@ -120,7 +117,7 @@ const displayCart = async () => {
   }
 };
 
-displayCart();
+displayCart(cartData);
 
 /* LE FORMULAIRE */
 
@@ -141,7 +138,6 @@ const sendToServer = (contact, products) => {
     })
     .then((server) => {
       orderId = server.orderId;
-      console.log(orderId);
     });
 
   if (orderId != '') {
@@ -161,8 +157,6 @@ btnValidate.addEventListener('click', (event) => {
     email: document.querySelector('#email').value
   };
 
-  console.log('contact var', contact);
-
   // Regex champs Prénom, Nom et Ville
   const regexPNV = (value) => {
     return /^[A-Z][A-Za-z\é\è\ê\-]+$/.test(value);
@@ -181,9 +175,8 @@ btnValidate.addEventListener('click', (event) => {
   };
 
   // Fonction contrôle champ Prénom:
-  const firstNameControl = () => {
+  const firstNameControl = (contact) => {
     const prenom = contact.firstName;
-    console.log('prenom: ', prenom);
     let inputFirstName = document.querySelector('#firstName');
     if (regexPNV(prenom)) {
       inputFirstName.style.backgroundColor = 'green';
@@ -199,7 +192,7 @@ btnValidate.addEventListener('click', (event) => {
   };
 
   // Fonction contrôle champ Nom:
-  const lastNameControl = () => {
+  const lastNameControl = (contact) => {
     const nom = contact.lastName;
     let inputLastName = document.querySelector('#lastName');
     if (regexPNV(nom)) {
@@ -217,7 +210,7 @@ btnValidate.addEventListener('click', (event) => {
   };
 
   // Fonction contrôle champ Adresse:
-  const addressControl = () => {
+  const addressControl = (contact) => {
     const adresse = contact.address;
     let inputAddress = document.querySelector('#address');
     if (regexAddress(adresse)) {
@@ -235,7 +228,7 @@ btnValidate.addEventListener('click', (event) => {
   };
 
   // Fonction contrôle champ Ville:
-  const cityControl = () => {
+  const cityControl = (contact) => {
     const ville = contact.city;
     let inputCity = document.querySelector('#city');
     if (regexPNV(ville)) {
@@ -253,7 +246,7 @@ btnValidate.addEventListener('click', (event) => {
   };
 
   // Fonction contrôle champ Mail:
-  const mailControl = () => {
+  const mailControl = (contact) => {
     const courriel = contact.email;
     let inputMail = document.querySelector('#email');
     if (regexMail(courriel)) {
@@ -272,11 +265,11 @@ btnValidate.addEventListener('click', (event) => {
 
   // Contrôle validité formulaire avant l'envoi dans le local storage
   if (
-    firstNameControl() &&
-    lastNameControl() &&
-    addressControl() &&
-    cityControl() &&
-    mailControl()
+    firstNameControl(contact) &&
+    lastNameControl(contact) &&
+    addressControl(contact) &&
+    cityControl(contact) &&
+    mailControl(contact)
   ) {
     document.querySelector('#order').value =
       'Articles et formulaire validés ! Commande effectuée';

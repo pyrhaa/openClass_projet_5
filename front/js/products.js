@@ -1,8 +1,5 @@
 // Fetch ID of the product
-const getProductId = () => {
-  return new URL(location.href).searchParams.get('id');
-};
-const productId = getProductId();
+const productId = new URL(location.href).searchParams.get('id');
 // select id color
 const selectColor = document.querySelector('#colors');
 // select id quantity
