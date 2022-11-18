@@ -2,17 +2,36 @@
 /*Confirmation*/
 /**************/
 .confirmation {
-    display: flex;
-    justify-content: center;
-    margin-top: 85px;
-    margin-bottom: 85px;
+  display: flex;
+  justify-content: center;
+  margin-top: 85px;
+  margin-bottom: 85px;
 }
 
 .confirmation p {
-    background-color: white;
-    color: #3d424f;
-    text-align: center;
-    font-weight: 500;
-    padding: 30px;
-    border-radius: 25px;
+  background-color: white;
+  color: #3d424f;
+  text-align: center;
+  font-weight: 500;
+  padding: 30px;
+  border-radius: 25px;
+}
+
+.item__content__returnButton {
+  display: flex;
+  justify-content: center;
+  padding-top: 32px;
+}
+.item__content__returnButton button {
+  font-size: 22px;
+  border-radius: 40px;
+  border: 0;
+  background-color: var(--secondary-color);
+  color: white;
+  padding: 18px 28px;
+  cursor: pointer;
+}
+.item__content__returnButton button:hover {
+  box-shadow: 0 12px 16px 0 rgba(0, 0, 0, 0.24),
+    0 17px 50px 0 rgba(0, 0, 0, 0.19);
 }

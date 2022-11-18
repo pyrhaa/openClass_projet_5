@@ -4,14 +4,6 @@ let products = [];
 
 let orderId = '';
 
-const contact = {
-  firstName: document.querySelector('#firstName').value,
-  lastName: document.querySelector('#lastName').value,
-  address: document.querySelector('#address').value,
-  city: document.querySelector('#city').value,
-  email: document.querySelector('#email').value
-};
-
 const getProductById = (productId) => {
   const result = fetch('http://localhost:3000/api/products/' + productId)
     .then((res) => {
@@ -79,7 +71,6 @@ const displayCart = async () => {
   if (cartData === null || cartData === 0) {
     positionEmptyCart.textContent = 'Votre panier est vide';
   } else {
-    console.log('Des produits sont présents dans le panier');
     for (i = 0; i < cartData.length; i++) {
       const product = await getProductById(cartData[i].id);
       const totalPriceItem = (product.price *= cartData[i].quantity);
@@ -137,7 +128,7 @@ displayCart();
 const btnValidate = document.querySelector('#order');
 
 /* REQUÊTE DU SERVEUR ET POST DES DONNÉES */
-const sendToServer = () => {
+const sendToServer = (contact, products) => {
   fetch('http://localhost:3000/api/products/order', {
     method: 'POST',
     body: JSON.stringify({ contact, products }),
@@ -162,6 +153,16 @@ const sendToServer = () => {
 btnValidate.addEventListener('click', (event) => {
   event.preventDefault();
 
+  const contact = {
+    firstName: document.querySelector('#firstName').value,
+    lastName: document.querySelector('#lastName').value,
+    address: document.querySelector('#address').value,
+    city: document.querySelector('#city').value,
+    email: document.querySelector('#email').value
+  };
+
+  console.log('contact var', contact);
+
   // Regex champs Prénom, Nom et Ville
   const regexPNV = (value) => {
     return /^[A-Z][A-Za-z\é\è\ê\-]+$/.test(value);
@@ -182,6 +183,7 @@ btnValidate.addEventListener('click', (event) => {
   // Fonction contrôle champ Prénom:
   const firstNameControl = () => {
     const prenom = contact.firstName;
+    console.log('prenom: ', prenom);
     let inputFirstName = document.querySelector('#firstName');
     if (regexPNV(prenom)) {
       inputFirstName.style.backgroundColor = 'green';
@@ -190,7 +192,6 @@ btnValidate.addEventListener('click', (event) => {
       return true;
     } else {
       inputFirstName.style.backgroundColor = '#FF6F61';
-
       document.querySelector('#firstNameErrorMsg').textContent =
         'le Prenom doit commencer par une majuscule';
       return false;
@@ -277,29 +278,11 @@ btnValidate.addEventListener('click', (event) => {
     cityControl() &&
     mailControl()
   ) {
-    // Enregistre le formulaire dans le local storage
-    localStorage.setItem('contact', JSON.stringify(contact));
-
     document.querySelector('#order').value =
       'Articles et formulaire validés ! Commande effectuée';
-    sendToServer();
+    sendToServer(contact, products);
   } else {
     alert('Veuillez remplir correctement le formulaire');
   }
 });
 /* FIN GESTION DU FORMULAIRE */
-
-// Maintenir le contenu du localStorage dans le champs du formulaire
-
-let dataFormulaire = JSON.parse(localStorage.getItem('contact'));
-
-console.log('dataFormulaire: ', dataFormulaire);
-if (dataFormulaire) {
-  document.querySelector('#firstName').value = dataFormulaire.firstName;
-  document.querySelector('#lastName').value = dataFormulaire.lastName;
-  document.querySelector('#address').value = dataFormulaire.address;
-  document.querySelector('#city').value = dataFormulaire.city;
-  document.querySelector('#email').value = dataFormulaire.email;
-} else {
-  console.log('Le formulaire est vide');
-}

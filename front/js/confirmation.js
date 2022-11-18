@@ -5,12 +5,13 @@ const orderId = getProductId();
 
 const idConfirmation = document.querySelector('#orderId');
 
-const btnReturnHtml = `<button id="retourAccueil"><a href="./index.html">Retour à l'accueil</a></button>`;
+const btnReturnHtml = `<div class="item__content__returnButton">
+<a href="./index.html"><button id="btnReturn">Retour à l'accueil</button></a></div>`;
 
 const clearData = () => {
   idConfirmation.innerHTML = `
   <br>
-  <strong>${orderId}</strong>. <br>
+  <strong>${orderId}</strong><br>
   <br>
   `;
 
