@@ -1,5 +1,5 @@
 const cartData = JSON.parse(localStorage.getItem('cart'));
-const products = [];
+let products = cartData.filter((product) => product.id);
 let orderId = '';
 
 const getProductById = (productId) => {
@@ -126,23 +126,23 @@ const btnValidate = document.querySelector('#order');
 
 /* REQUÊTE DU SERVEUR ET POST DES DONNÉES */
 const sendToServer = (contact, products) => {
-  fetch('http://localhost:3000/api/products/order', {
+  products = products.map((prod) => prod.id);
+  const result = fetch('http://localhost:3000/api/products/order', {
     method: 'POST',
     body: JSON.stringify({ contact, products }),
     headers: {
       'Content-Type': 'application/json'
     }
-  })
-    .then((res) => {
-      return res.json();
-    })
-    .then((server) => {
-      orderId = server.orderId;
-    });
-
-  if (orderId != '') {
-    location.href = 'confirmation.html?id=' + orderId;
-  }
+  });
+  result.then(async (res) => {
+    try {
+      const data = await res.json();
+      window.location.href = `confirmation.html?id=${data.orderId}`;
+      localStorage.clear();
+    } catch (e) {
+      console.log('Error: ', e);
+    }
+  });
 };
 
 // validation par click
