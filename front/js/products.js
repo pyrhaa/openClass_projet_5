@@ -2,11 +2,8 @@
 const productId = new URL(location.href).searchParams.get('id');
 // select id color
 const selectColor = document.querySelector('#colors');
-// select id quantity
 const selectQuantity = document.querySelector('#quantity');
-
-// select button add to cart
-const addToCart = document.querySelector('#addToCart');
+// select id quantity
 
 //function 1
 const selectProduct = (product) => {
@@ -30,9 +27,12 @@ const selectProduct = (product) => {
 
 //function 2
 const registerProduct = (product) => {
+  // select button add to cart
+  const addToCart = document.querySelector('#addToCart');
+  const cartData = JSON.parse(localStorage.getItem('cart'));
+
   addToCart.addEventListener('click', (event) => {
     event.preventDefault();
-    const cartData = JSON.parse(localStorage.getItem('cart'));
     const selectedProducts = {
       id: product._id,
       name: product.name,
@@ -42,35 +42,37 @@ const registerProduct = (product) => {
       color: selectColor.value,
       quantity: parseInt(selectQuantity.value, 10)
     };
-    const sameItemColor = selectedProducts.color;
 
-    if (selectColor.value === '') {
+    if (selectedProducts.color === '') {
       confirm('Veuillez sélectionner une couleur');
-    }
-    if (selectQuantity.value === '0') {
+    } else if (selectedProducts.quantity === 0) {
       confirm("Nombre d'articles insuffisants");
-    }
-
-    if (cartData) {
-      let itemArray = cartData.find(
-        (item) =>
-          item.id == selectedProducts.id && item.color == selectedProducts.color
-      );
-
-      if (itemArray && sameItemColor === itemArray.color) {
-        itemArray.quantity = itemArray.quantity + selectedProducts.quantity;
-        itemArray.totalPrice += itemArray.price * selectedProducts.quantity;
-        localStorage.setItem('cart', JSON.stringify(cartData));
-      } else {
-        cartData.push(selectedProducts);
-        localStorage.setItem('cart', JSON.stringify(cartData));
-      }
+    } else if (selectedProducts.quantity > 100) {
+      confirm("Nombre d'articles dépasse la limite de 100");
     } else {
-      let createLocalStorage = [];
-      createLocalStorage.push(selectedProducts);
-      localStorage.setItem('cart', JSON.stringify(createLocalStorage));
+      if (cartData) {
+        let itemArray = cartData.find(
+          (item) =>
+            item.id == selectedProducts.id &&
+            item.color == selectedProducts.color
+        );
+        const sameItemColor = selectedProducts.color;
+
+        if (itemArray && sameItemColor === itemArray.color) {
+          itemArray.quantity = itemArray.quantity + selectedProducts.quantity;
+          itemArray.totalPrice += itemArray.price * selectedProducts.quantity;
+          localStorage.setItem('cart', JSON.stringify(cartData));
+        } else {
+          cartData.push(selectedProducts);
+          localStorage.setItem('cart', JSON.stringify(cartData));
+        }
+      } else {
+        let createLocalStorage = [];
+        createLocalStorage.push(selectedProducts);
+        localStorage.setItem('cart', JSON.stringify(createLocalStorage));
+      }
+      alert('Votre article est ajouté au panier');
     }
-    alert('Votre article est ajouté au panier');
   });
 };
 
