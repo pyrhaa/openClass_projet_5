@@ -31,8 +31,6 @@ const registerProduct = (product) => {
   // select button add to cart
   const addToCart = document.querySelector('#addToCart');
 
-  console.log(cartData);
-
   addToCart.addEventListener('click', (event) => {
     event.preventDefault();
     let selectedProducts = {
@@ -42,8 +40,21 @@ const registerProduct = (product) => {
       altTxt: product.altTxt,
       description: product.description,
       color: selectColor.value,
-      quantity: parseInt(selectQuantity.value, 10)
+      quantity: Number(selectQuantity.value)
     };
+    let checkQuantity = [];
+    let resultQuantityAdd;
+
+    if (cartData) {
+      checkQuantity = cartData.find(
+        (item) =>
+          item.id == selectedProducts.id && item.color == selectedProducts.color
+      );
+    }
+
+    if (checkQuantity) {
+      resultQuantityAdd = checkQuantity.quantity + selectedProducts.quantity;
+    }
 
     if (selectedProducts.color === '') {
       confirm('Veuillez sélectionner une couleur');
@@ -52,11 +63,14 @@ const registerProduct = (product) => {
     } else if (selectedProducts.quantity > 100) {
       selectedProducts.quantity = 0;
       confirm("Nombre d'articles dépasse la limite de 100");
-      // } else if (cartData.quantity > 100) {
-      //   selectedProducts.quantity = 0;
-      //   confirm(
-      //     'La quantité de cet article dans le panier dépasse la limite de 100'
-      //   );
+    } else if (
+      (cartData && checkQuantity && checkQuantity.quantity === 100) ||
+      resultQuantityAdd > 100
+    ) {
+      selectedProducts.quantity = 0;
+      confirm(
+        'La quantité de cet article dans le panier dépasse la limite de 100'
+      );
     } else {
       if (cartData) {
         let itemArray = cartData.find(
