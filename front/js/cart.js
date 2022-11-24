@@ -1,6 +1,7 @@
 const cartData = JSON.parse(localStorage.getItem('cart'));
-let products = cartData.filter((product) => product.id);
 let orderId = '';
+
+console.log('cartData from cart file: ', cartData);
 
 const getProductById = (productId) => {
   const result = fetch('http://localhost:3000/api/products/' + productId)
@@ -70,7 +71,7 @@ const displayCart = async (cartData) => {
   } else {
     for (i = 0; i < cartData.length; i++) {
       const product = await getProductById(cartData[i].id);
-      const totalPriceItem = (product.price *= cartData[i].quantity);
+      const totalPriceItem = product.price * cartData[i].quantity;
       cartArray += `<article class="cart__item" data-id="${cartData[i].id}" data-color="${cartData[i].color}">
                   <div class="cart__item__img">
                       <img src="${product.imageUrl}" alt="${product.altTxt}">
@@ -149,6 +150,7 @@ const sendToServer = (contact, products) => {
 btnValidate.addEventListener('click', (event) => {
   event.preventDefault();
 
+  let products = cartData.filter((product) => product.id);
   const contact = {
     firstName: document.querySelector('#firstName').value,
     lastName: document.querySelector('#lastName').value,
