@@ -1,8 +1,9 @@
+// Récupération du localStorage
 const cartData = JSON.parse(localStorage.getItem('cart'));
+// Variable qui récupère l'orderId envoyé comme réponse par le serveur lors de la requête POST
 let orderId = '';
 
-console.log('cartData from cart file: ', cartData);
-
+// Récupération des produits de l'API
 const getProductById = (productId) => {
   const result = fetch('http://localhost:3000/api/products/' + productId)
     .then((res) => {
@@ -16,7 +17,7 @@ const getProductById = (productId) => {
     });
   return result;
 };
-
+// Modification de la quantité
 const changeQuantity = () => {
   const quantityInputs = document.querySelectorAll('.itemQuantity');
 
@@ -32,15 +33,15 @@ const changeQuantity = () => {
         }
         return item;
       });
-
+      // Mise à jour du localStorage
       let itemsStr = JSON.stringify(items);
       localStorage.setItem('cart', itemsStr);
-
+      // Refresh de la page
       location.reload();
     });
   });
 };
-
+// Suppression d'un article
 const deleteItem = () => {
   const deleteButtons = document.querySelectorAll('.deleteItem');
   deleteButtons.forEach((deleteButton) => {
@@ -51,13 +52,15 @@ const deleteItem = () => {
       let items = cartData.filter(
         (element) => !(element.id == deleteId && element.color == deleteColor)
       );
+      // Mise à jour du localStorage
       localStorage.setItem('cart', JSON.stringify(items));
+      // Refresh de la page
       location.reload();
       alert('Article supprimé du panier.');
     });
   });
 };
-
+// Affichage du contenu du panier
 const displayCart = async (cartData) => {
   let cartArray = [];
   let totalQuantity = 0;
@@ -66,9 +69,11 @@ const displayCart = async (cartData) => {
   const parser = new DOMParser();
   const positionEmptyCart = document.getElementById('cart__items');
 
+  // Si le localstorage est vide
   if (cartData === null || cartData === 0) {
     positionEmptyCart.textContent = 'Votre panier est vide';
   } else {
+    // Si le localstorage contient des produits
     for (i = 0; i < cartData.length; i++) {
       const product = await getProductById(cartData[i].id);
       const totalPriceItem = product.price * cartData[i].quantity;
@@ -99,7 +104,7 @@ const displayCart = async (cartData) => {
                   </div>
                   </article>`;
     }
-
+    // Boucle d'affichage du nombre total d'articles dans le panier et de la somme totale
     for (i = 0; i < cartData.length; i++) {
       const article = await getProductById(cartData[i].id);
       totalQuantity += parseInt(cartData[i].quantity);
@@ -122,7 +127,7 @@ displayCart(cartData);
 
 /* LE FORMULAIRE */
 
-// bouton valider
+// sélection du bouton Valider
 const btnValidate = document.querySelector('#order');
 
 /* REQUÊTE DU SERVEUR ET POST DES DONNÉES */
@@ -135,8 +140,10 @@ const sendToServer = (contact, products) => {
       'Content-Type': 'application/json'
     }
   });
+  // Récupération et stockage de la réponse de l'API (orderId)
   result.then(async (res) => {
     try {
+      // Si l'orderId a bien été récupéré, on redirige l'utilisateur vers la page de Confirmation
       const data = await res.json();
       window.location.href = `confirmation.html?id=${data.orderId}`;
       localStorage.clear();
@@ -146,7 +153,7 @@ const sendToServer = (contact, products) => {
   });
 };
 
-// validation par click
+// Écoute du bouton Valider sur le click pour pouvoir valider le formulaire
 btnValidate.addEventListener('click', (event) => {
   event.preventDefault();
 
@@ -158,6 +165,8 @@ btnValidate.addEventListener('click', (event) => {
     city: document.querySelector('#city').value,
     email: document.querySelector('#email').value
   };
+
+  /* GESTION DU FORMULAIRE */
 
   // Regex champs Prénom, Nom et Ville
   const regexPNV = (value) => {

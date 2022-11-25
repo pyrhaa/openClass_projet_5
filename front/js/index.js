@@ -1,4 +1,4 @@
-// Fetching data from backend
+// Création d'une liste des produits à partir des données de l'API et intégration des différents produits dans la page d'accueil
 const createArticle = (data) => {
   const section = document.getElementById('items');
 
@@ -13,6 +13,7 @@ const createArticle = (data) => {
   });
 };
 
+// Récupération des données de l'API
 const getAllProducts = () => {
   fetch('http://localhost:3000/api/products/')
     .then((res) => res.json())

@@ -1,3 +1,4 @@
+//Affichage de l'orderId dans le DOM et effacement des données
 const clearData = (confirmation) => {
   const orderId = new URL(location.href).searchParams.get('id');
   const btnReturnHtml = `<div class="item__content__returnButton">
